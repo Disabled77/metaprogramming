@@ -1,4 +1,5 @@
 #include <iostream>
+#include <gtest/gtest.h>
 
 template <std::size_t number>
 void print(){
@@ -12,9 +13,13 @@ void print<0ul>(){
 
 
 
-int main()
-{
-    print<0>();
-    print<1>();
-    return 0;
+int main(int argc, char **argv){
+
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
+
+//TEST(MAIN, general)
+//{
+//   std::cout<<"hello world"<<std::endl;
+//}
