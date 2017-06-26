@@ -51,46 +51,34 @@ T* prototype(const T value){
 }
 
 template <template <class T> class CreateStrategy>
-struct Creater{
+struct CreaterInt:
+        public CreateStrategy<int>{
     using Type = int;
-    template <class... Args>
-    static Type* create(Args... args){
-        return CreateStrategy<Type>::create(args...);
-    }
 };
-
-template <>
-struct Creater<PrototypCreate>{
-    using Type = int;
-    using PrototypeCreateStrategy = PrototypCreate<Type>;
-    using Prototype = decltype(std::declval<PrototypCreate<Type>>().functionPrototype_);
-
-    Creater(Prototype functionPrototype):
-        prototypeCreator_(functionPrototype)
-    {}
-
-    template <class... Args>
-    Type* create(Args... args){
-        return prototypeCreator_.create(args...);
-    }
-    PrototypeCreateStrategy prototypeCreator_;
-};
-
 
 
 TEST(CLASS_PROVIDE_STRATEGY, choose_strategy)
 {
-   int *newInt = Creater<NewCreate>::create(1);
-   int *mallocInt = Creater<MallocCreate>::create(2);
+    int *newInt = CreaterInt<NewCreate>::create(1);
+    int *mallocInt = CreaterInt<MallocCreate>::create(2);
 
-   Creater<PrototypCreate> creater(prototype);
-   int* byPrototype = creater.create(3);
+    CreaterInt<PrototypCreate> creater;
+    creater.setPrototype(prototype);
+    int* byPrototype = creater.create(3);
 
 
-   EXPECT_EQ(*newInt, 1);
-   EXPECT_EQ(*mallocInt, 2);
-   EXPECT_EQ(*byPrototype, 3);
+    EXPECT_EQ(*newInt, 1);
+    EXPECT_EQ(*mallocInt, 2);
+    EXPECT_EQ(*byPrototype, 3);
 
-   delete newInt;
-   delete mallocInt;
+    delete newInt;
+    delete mallocInt;
+    delete byPrototype;
+}
+
+TEST(CONVERT, convert_one_class_to_completely_different){
+    CreaterInt<NewCreate> classCreator;
+    NewCreate<int>* strategyCreator = &classCreator;
+    delete(strategyCreator);
+    //undefined behaviour!!!
 }
