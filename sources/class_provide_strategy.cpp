@@ -30,9 +30,6 @@ struct PrototypCreate{
         functionPrototype_ = functionPrototype;
     }
 
-    T* getPrototype() const {
-        return functionPrototype_;
-    }
 
     template<class... Args>
     T* create(T value) const {
@@ -54,6 +51,11 @@ template <template <class T> class CreateStrategy>
 struct CreaterInt:
         public CreateStrategy<int>{
     using Type = int;
+
+    void switch_prototype(int* (*newPrototype)(int)){
+        CreateStrategy<int>* currentStrategy = this;
+        currentStrategy->setPrototype(newPrototype);
+    }
 };
 
 
@@ -76,9 +78,12 @@ TEST(CLASS_PROVIDE_STRATEGY, choose_strategy)
     delete byPrototype;
 }
 
-TEST(CONVERT, convert_one_class_to_completely_different){
-    CreaterInt<NewCreate> classCreator;
-    NewCreate<int>* strategyCreator = &classCreator;
-    delete(strategyCreator);
-    //undefined behaviour!!!
+TEST(CLASS, compile_only_use_prototype){
+    CreaterInt<NewCreate> creater;
+
+    CreaterInt<PrototypCreate> createrPrototype;
+    createrPrototype.setPrototype(prototype);
+
+    createrPrototype.switch_prototype(prototype);
 }
+
