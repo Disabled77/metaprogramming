@@ -3,9 +3,8 @@
 #include <iostream>
 
 #include <strategy/create.hpp>
-#include <strategy/delete.hpp>
 
-#include <common/tools/unused.hpp>
+#include <common/tools.hpp>
 
 template <class T>
 T* prototype(const T value){
