@@ -2,6 +2,9 @@
 
 #include <common/tools.hpp>
 
+#include <partial_specialisation/selector.hpp>
+#include <partial_specialisation/super_sup.hpp>
+
 template <bool isPolymorphic>
 struct PolymorphicCondtition;
 
@@ -57,21 +60,10 @@ struct ObjectType<T, false>{
     static constexpr T value{};
 };
 
-template <class FirstType, class SecondType, bool chooseFirst>
-struct Selector;
-
-template <class FirstType, class SecondType>
-struct Selector<FirstType, SecondType, true>{
-    static constexpr FirstType value{};
-};
-
-template <class FirstType, class SecondType>
-struct Selector<FirstType, SecondType, false>{
-    static constexpr SecondType value{};
-};
-
 TEST(PARTICAL_CLASS_SPECIALISATION, selector)
 {
+    using partial_specialisation::Selector;
+
     ObjectType<int, true> objectKeeper1{};
     ObjectType<int, false> objectKeeper2{};
     std::cout<<common::getPrettyTypeName(objectKeeper1.value)<<std::endl;
@@ -81,4 +73,23 @@ TEST(PARTICAL_CLASS_SPECIALISATION, selector)
     Selector<int, int*, false> selector2{};
     std::cout<<common::getPrettyTypeName(selector1.value)<<std::endl;
     std::cout<<common::getPrettyTypeName(selector2.value)<<std::endl;
+
+}
+
+class Basic{};
+class Child: public Basic{};
+class Any{};
+
+
+
+TEST(PARTICAL_CLASS_SPECIALISATION, static_find_is_child)
+{
+    using partial_specialisation::SuperSub;
+
+    std::cout<<SuperSub<Child,Basic>::condition<<std::endl;
+    std::cout<<SuperSub<Child,Child>::condition<<std::endl;
+    std::cout<<SuperSub<Basic,Basic>::condition<<std::endl;
+    std::cout<<SuperSub<Basic,Child>::condition<<std::endl;
+    std::cout<<SuperSub<Child,Any>::condition<<std::endl;
+
 }
